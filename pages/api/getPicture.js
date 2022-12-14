@@ -24,72 +24,37 @@ const s3 = new S3Client({
 
 async function getSignedFileUrl(data) {
   const params = {
-    ACL: "public-read",
     Bucket: awsS3Bucket,
     Key: data.name,
   };
-  const command = new PutObjectCommand(params);
+  const command = new GetObjectCommand(params);
   const url = await getSignedUrl(s3, command, {
     expiresIn: 15,
   });
   return url;
 }
-
-async function uploadMetadata(address, description) {
-  const baseUrl = "https://poqopotest.s3.us-west-2.amazonaws.com/image/";
-  const metadata = {
-    name: "Profile NFT",
-    description: description,
-    image: baseUrl + address,
-    attributes: [],
-  };
-
-  try {
-    const body = {
-      name: "json/" + address,
-      type: "application/json",
-    };
-    const signedUrl = await getSignedFileUrl(body);
-    const uploadMetadata = await axios.put(signedUrl, metadata);
-  } catch (e) {
-    console.log(e);
-  }
-  return true;
-}
-
-async function uploadImg(url, address) {
-  const result = await axios.get(url, {
-    responseType: "arraybuffer",
-  });
+async function getImg(address) {
   try {
     const body = {
       name: "image/" + address,
       type: result.headers["content-type"],
     };
     const signedUrl = await getSignedFileUrl(body);
-    const uploadMetadata = await axios.put(signedUrl, result.data, {
+    const getImage = await axios.get(signedUrl, {
       headers: {
         "content-type": result.headers["content-type"],
       },
     });
     return true;
   } catch (e) {
-    console.log(e);
     return false;
   }
 }
-
 const generateAction = async (req, res) => {
-  const result = await uploadImg(req.body.imgUrl, req.body.userAddress);
-  const metadataResult = await uploadMetadata(
-    req.body.userAddress,
-    req.body.description
-  );
-  if (req.body.userAddress) {
-    makeNFT(req.body.userAddress);
-
-    return;
+  if (req.query.userAddress !== "undefined") {
+    const result = await getImg(req.query.userAddress);
+    res.status(200).json(result);
   }
+  res.status(400);
 };
-
 export default generateAction;

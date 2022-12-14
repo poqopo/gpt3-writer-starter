@@ -9,14 +9,21 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.229.0",
+    "@aws-sdk/s3-request-presigner": "^3.229.0",
     "@emotion/react": "^11.10.5",
     "@emotion/styled": "^11.10.5",
+    "@rainbow-me/rainbowkit": "^0.8.1",
+    "axios": "^1.2.1",
     "eslint": "8.27.0",
     "eslint-config-next": "13.0.3",
+    "ethers": "^5.7.2",
     "framer-motion": "^6.5.1",
     "next": "^13.0.6",
     "openai": "^3.1.0",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "wagmi": "^0.9.2",
+    "web3-eth-contract": "^1.8.1"
   }
 }
