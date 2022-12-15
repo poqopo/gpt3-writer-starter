@@ -37,24 +37,22 @@ async function getImg(address) {
   try {
     const body = {
       name: "image/" + address,
-      type: result.headers["content-type"],
+      type: "image/png",
     };
     const signedUrl = await getSignedFileUrl(body);
     const getImage = await axios.get(signedUrl, {
       headers: {
-        "content-type": result.headers["content-type"],
+        "content-type": "image/png",
       },
     });
     return true;
   } catch (e) {
+    console.log(e);
     return false;
   }
 }
 const generateAction = async (req, res) => {
-  if (req.query.userAddress !== "undefined") {
-    const result = await getImg(req.query.userAddress);
-    res.status(200).json(result);
-  }
-  res.status(400);
+  const result = await getImg(req.query.userAddress);
+  res.status(200).json(result);
 };
 export default generateAction;

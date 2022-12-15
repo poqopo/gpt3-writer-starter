@@ -4,6 +4,7 @@ import buildspaceLogo from "../assets/buildspace-logo.png";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import Canvas from "./Canvas";
 
 const Home = () => {
   const [userInput, setUserInput] = useState("");
@@ -13,6 +14,7 @@ const Home = () => {
   const [selectedAddress, setSelectedAddress] = useState(undefined);
   const [test, setTest] = useState(undefined);
   const [userProfile, setUserProfile] = useState(undefined);
+  const [mask, setMask] = useState();
   const baseUrl = "https://poqopotest.s3.us-west-2.amazonaws.com/image/";
 
   useEffect(() => {
@@ -26,11 +28,13 @@ const Home = () => {
   }, [test]);
 
   useEffect(() => {
-    const response = axios
-      .get(`/api/getPicture?userAddress=${selectedAddress}`)
-      .then((response) =>
-        response ? setUserProfile(baseUrl + selectedAddress) : ""
-      );
+    if (selectedAddress) {
+      const response = axios
+        .get(`/api/getPicture?userAddress=${selectedAddress}`)
+        .then((response) => {
+          response.data ? setUserProfile(baseUrl + selectedAddress) : "";
+        });
+    }
   }, [selectedAddress]);
 
   const callGenerateEndpoint = async () => {
@@ -49,20 +53,23 @@ const Home = () => {
 
     setIsGenerating(false);
   };
+
   const callEditEndpoint = async () => {
     setIsGenerating(true);
+
     console.log("Calling OpenAI...");
-    const response = await fetch("/api/generate", {
+    const response = await fetch("/api/editNFT", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ userProfile, userInput }),
+      body: JSON.stringify({ selectedAddress, userProfile, userInput, mask }),
     });
 
     setApiOutput(await response.json());
     setIsGenerating(false);
   };
+  console.log(mask);
 
   const callMakingNFT = async (description, imgUrl, userAddress) => {
     setIsBuilding(true);
@@ -83,7 +90,7 @@ const Home = () => {
       <Head>
         <title>Demo for writing novel</title>
       </Head>
-      <div onClick={() => setTest(undefined)}>
+      <div onClick={() => setTest("test!")}>
         <ConnectButton />
       </div>
 
@@ -101,7 +108,7 @@ const Home = () => {
         {userProfile ? (
           <div>
             <h2 style={{ color: "white" }}>Your Current picture is </h2>
-            <img src={userProfile} alt="Loading..."></img>
+            <Canvas backgroundUrl={userProfile} setFn={setMask} />
           </div>
         ) : (
           <div />
